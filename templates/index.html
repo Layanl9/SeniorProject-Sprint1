@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="/css/home.css">
+</head>
+<!--HEADER-->
+<header class="header">
+    <meta charset="UTF-8">
+    <img  src="/images/whiteM.png" alt="Munbit" style="width: 400px; height: 200px;">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+</header>
+<!--MAIN-->
+<nav class="sticky navbar">
+	<div class="brand  display__logo">
+		 <span class="logo">
+			<img src="/images/whiteM.png" style="width:80px; height: 40px;">
+		</span>
+	</div>
+<!--NAV BAR-->
+	<input type="checkbox" id="nav" class="hidden" />
+	<label for="nav" class="nav__open"><i></i><i></i><i></i></label>
+	<div class="nav">
+		<ul class="nav__items">
+			<li class="nav__item"><a href="#home" class="nav__link">Home</a></li>
+			<li class="nav__item"><a href="#about" class="nav__link">About</a></li>
+			<li class="nav__item"><a href="#image" class="nav__link">soil classifer</a></li>
+			<li class="nav__item"><a href="#contact" class="nav__link">contact</a></li>
+		</ul>
+	</div>
+</nav>
+
+<main>
+    <!--HOME PAGE-->
+	<section class="home">
+		<div id="home">
+			<h1>MUNBIT</h1>
+			<h3>For every planter ..</h3>
+			<button id ="read-more" style="--clr:#4B5745">Read More</button>
+			<div class="banner">
+				<video autoplay loop muted>
+					<source src="/images/leafsV.mp4" type="video/mp4">
+				</video>
+			</div>
+		</div>
+	</section>
+ <!--classifier PAGE-->
+	<section class="image">
+		<div id="image">
+			<h1>soil Classifier</h1>
+			
+				<form id="upload-form" method="post" enctype="multipart/form-data" action="/predict">
+					<label for="image-input" id="drop-area">
+						<input type="file" id="image-input" name="file" accept="image/*" hidden>
+						<div id="img-area" data-img="">
+							<i class='bx bx-cloud-upload icon'></i>
+							<p>
+								Drag and Drop or Click Here !
+								<br>
+								<span>Upload Your Soil Image From Desktop</span>
+							</p>
+						</div>
+					</label>
+					<input id="resultsButton" type="submit" value="Predict">
+				</form>
+				<div id="result-container" style="display: none;">
+					<h2 id="result-text"></h2>
+				</div>
+				<div id="error-container" style="display: none;">
+					<h2 id="error-text"></h2>
+				</div>
+		
+			</div>
+	</section>
+	
+	<img src="/images/pattern4.png" alt="aa"style="width: 1250px; height: 100px"; >
+</main>
+<!--FOOTER-->
+<footer class="footer">
+	<div class="footer">
+		<div class="row">
+		<a href="#"><i class="fa fa-facebook"></i></a>
+		<a href="#"><i class="fa fa-instagram"></i></a>
+		<a href="#"><i class="fa fa-youtube"></i></a>
+		<a href="#"><i class="fa fa-twitter"></i></a>
+		</div>
+		
+		<div class="row">
+		<ul>
+		<li><a href="">Contact us</a></li>
+		<li><a href="#">About us</a></li>
+		<li><a href="#">Privacy Policy</a></li>
+		<li><a href="#">Terms & Conditions</a></li>
+		<li><a href="#">Chat bot</a></li>
+		</ul>
+		</div>
+		
+		<div class="row">- Made By MUNBIT Team - </div>
+		</div>
+</footer>
+<!--JAVASCRIPT CODE -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+            // JavaScript code to handle the response and display the result
+			$(document).ready(function () {
+            $("#upload-form").submit(function (event) {
+                event.preventDefault();
+                var formData = new FormData(this);
+                $.ajax({
+                    url: '/predict',
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response === 'No file uploaded' || response === 'Invalid file format. Please upload a PNG or JPEG image.' || response === 'Error processing the image') {
+                            $("#result-container").hide();
+                            $("#error-text").text(response);
+                            $("#error-container").show();
+                        } else if (response === 'Not a soil image') {
+                            $("#result-container").hide();
+                            $("#error-text").text("The uploaded photo does not relate to soils");
+                            $("#error-container").show();
+                        } else {
+                            $("#error-container").hide();
+							//$("#result-text").html("Soil Type: " + "<br>" +response);
+                            $("#result-text").html("<div class='centered-text'>Soil Type: <br>" + response + "</div>");
+
+                            $("#result-container").show();
+                        }
+                    },
+                    error: function () {
+                        $("#result-container").hide();
+                        $("#error-text").text('Error occurred during prediction');
+                        $("#error-container").show();
+                    }
+                });
+            });// JavaScript code to handle drag and drop functionality
+$("#drop-area").on('drag dragstart dragend dragover dragenter dragleave drop', function (event) {
+    event.preventDefault();
+    event.stopPropagation();
+})
+    .on('dragover dragenter', function () {
+        $(this).addClass('dragover');
+    })
+    .on('dragleave dragend drop', function () {
+        $(this).removeClass('dragover');
+    })
+    .on('drop', function (event) {
+        var file = event.originalEvent.dataTransfer.files[0];
+        var imageType = /image.*/;
+
+        if (file.type.match(imageType)) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                $("#img-area").css("background-image", "url(" + e.target.result + ")");
+                $("#img-area").attr("data-img", e.target.result);
+            }
+            reader.readAsDataURL(file);
+        } else {
+            $("#result-container").hide();
+            $("#error-text").text("Invalid file format. Please upload a PNG or JPEG image.");
+            $("#error-container").show();
+        }
+    });
+
+// JavaScript code to handle file input change
+$("#image-input").change(function () {
+    var file = this.files[0];
+    var imageType = /image.*/;
+
+    if (file.type.match(imageType)) {
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            $("#img-area").css("background-image", "url(" + e.target.result + ")");
+            $("#img-area").attr("data-img", e.target.result);
+        }
+        reader.readAsDataURL(file);
+    } else {
+        $("#result-container").hide();
+        $("#error-text").text("Invalid file format. Please upload a PNG or JPEG image.");
+        $("#error-container").show();
+    }
+});
+        });
+
+    </script>
+</html>
