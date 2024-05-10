@@ -14,7 +14,9 @@ def predict(image):
     image_array = tf.keras.utils.img_to_array(image)
     image_batch = tf.expand_dims(image_array, axis=0)
     prediction = model.predict(image_batch)
-    data_cat = ['Gravel', 'Sand', 'Silt']
+    data_cat = ['Gravel AND The right plant to plant in this soil is Cistus', 
+                'Sand AND The right plant to plant in this soil is Tulips', 
+                'Silt AND The right plant to plant in this soil is Japanese iris']
     result = data_cat[prediction.argmax()]
     accuracy = prediction.max() * 100
     return result, accuracy
